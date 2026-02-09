@@ -8,6 +8,8 @@ pub struct XstrRef<'root> {
 }
 
 impl<'root> XstrRef<'root> {
+  pub const EMPTY: Self = Self::new("");
+
   /// Create a new root extent UTF-8 string view from the provided str view
   pub const fn new(root: &'root str) -> Self {
     Self {
@@ -55,7 +57,18 @@ impl<'root> XstrRef<'root> {
     }
   }
 
-  /// Get the extent of this slice relative to root str.
+  /// Extract a sub-slice for the provided extent
+  pub const fn sub_slice_checked(self, extent: Extent) -> Option<Self> {
+    match self.split_at_checked(extent.start_or_zero()) {
+      None => None,
+      Some((_, right)) => match right.split_at_checked(extent.len()) {
+        None => None,
+        Some((left, _)) => Some(left),
+      },
+    }
+  }
+
+  /// Get the extent of this slice relative to the root str.
   pub const fn extent(self) -> Extent {
     self.xbstr.extent()
   }

@@ -85,5 +85,5 @@ mod xstr;
 
 pub use extent::Extent;
 pub use xbstr::XbstrRef;
-pub use xslice::XsliceRef;
+pub use xslice::{XsliceMut, XsliceRef};
 pub use xstr::XstrRef;

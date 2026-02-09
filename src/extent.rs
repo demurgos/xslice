@@ -57,11 +57,100 @@ impl Extent {
     }
   }
 
+  /// Get the end bound
+  ///
+  /// If `len` is zero, returns `None`
+  pub const fn end(self) -> Option<NonZeroUsize> {
+    match self.inner {
+      ExtentInner::Empty => None,
+      ExtentInner::NonEmpty(extent) => extent.len.checked_add(extent.start),
+    }
+  }
+
   /// Get the length of the extent
   pub const fn len(self) -> usize {
     match self.inner {
       ExtentInner::Empty => 0,
       ExtentInner::NonEmpty(extent) => extent.len.get(),
+    }
+  }
+
+  /// Remove `count` items from the start of the extent.
+  ///
+  /// This function checks that `count <= len`
+  pub const fn strip_start_checked(self, count: usize) -> Option<Self> {
+    if count == 0 {
+      return Some(self);
+    }
+    match self.split_at_checked(count) {
+      None => None,
+      Some((_, right)) => Some(right),
+    }
+  }
+
+  /// Remove `count` items from the end of the extent.
+  ///
+  /// This function checks that `count <= len`
+  pub const fn strip_end_checked(self, count: usize) -> Option<Self> {
+    if count == 0 {
+      return Some(self);
+    }
+    match self.split_at_checked(count) {
+      None => None,
+      Some((left, _)) => Some(left),
+    }
+  }
+
+  /// Reduce the extent size by removing the first item
+  ///
+  /// (increase `start` by one, reduce `len` by one).
+  /// This is equivalent to `self.strip_start_checked(1)`.
+  pub const fn pop_start(self) -> Option<Self> {
+    match self.inner {
+      ExtentInner::Empty => None,
+      ExtentInner::NonEmpty(inner) => Some(Self {
+        inner: match NonZeroUsize::new(
+          inner
+            .len
+            .get()
+            .checked_sub(1)
+            .expect("decrementing non-zero always succeeds"),
+        ) {
+          Some(len) => ExtentInner::NonEmpty(Extent1 {
+            start: inner
+              .start
+              .checked_add(1)
+              .expect("incrementing `start` always succeeds when new `len` is non-zero"),
+            len,
+          }),
+          None => ExtentInner::Empty,
+        },
+      }),
+    }
+  }
+
+  /// Reduce the extent size by removing the last item
+  ///
+  /// (keep `start` as-is, reduce `len` by one).
+  /// This is equivalent to `self.strip_end_checked(1)`.
+  pub const fn pop_end(self) -> Option<Self> {
+    match self.inner {
+      ExtentInner::Empty => None,
+      ExtentInner::NonEmpty(inner) => Some(Self {
+        inner: match NonZeroUsize::new(
+          inner
+            .len
+            .get()
+            .checked_sub(1)
+            .expect("decrementing non-zero always succeeds"),
+        ) {
+          Some(len) => ExtentInner::NonEmpty(Extent1 {
+            start: inner.start,
+            len,
+          }),
+          None => ExtentInner::Empty,
+        },
+      }),
     }
   }
 

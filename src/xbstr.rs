@@ -11,6 +11,8 @@ pub struct XbstrRef<'root> {
 }
 
 impl<'root> XbstrRef<'root> {
+  pub const EMPTY: Self = Self::new(&[]);
+
   /// Create a new root extent binary string view from the provided byte slice
   pub const fn new(root: &'root [u8]) -> Self {
     Self {
@@ -36,6 +38,14 @@ impl<'root> XbstrRef<'root> {
     }
   }
 
+  /// If non-empty, get the first byte and rest of the slice
+  pub const fn split_first_checked(self) -> Option<(u8, Self)> {
+    match self.xslice.split_first_checked() {
+      None => None,
+      Some((first, rest)) => Some((*first, Self { xslice: rest })),
+    }
+  }
+
   /// Split the extent slice at `mid`
   pub const fn split_at_checked(self, mid: usize) -> Option<(Self, Self)> {
     match self.xslice.split_at_checked(mid) {
@@ -49,6 +59,22 @@ impl<'root> XbstrRef<'root> {
     match self.xslice.sub_slice_checked(extent) {
       None => None,
       Some(xslice) => Some(Self { xslice }),
+    }
+  }
+
+  /// Extract a sub-slice for the first `count` bytes
+  pub const fn sub_slice_to_checked(self, count: usize) -> Option<Self> {
+    match self.split_at_checked(count) {
+      None => None,
+      Some((left, _)) => Some(left),
+    }
+  }
+
+  /// Extract a sub-slice for the bytes after `count` bytes
+  pub const fn sub_slice_from_checked(self, count: usize) -> Option<Self> {
+    match self.split_at_checked(count) {
+      None => None,
+      Some((_, right)) => Some(right),
     }
   }
 
