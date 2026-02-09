@@ -1,0 +1,9 @@
+[package]
+name = "xslice"
+version = "0.1.0"
+edition = "2024"
+repository = "https://github.com/demurgos/xslice"
+license = "AGPL-3.0-or-later"
+description = "Slice representation using relative extents instead of absolute pointers"
+
+[dependencies]
