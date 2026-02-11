@@ -1,3 +1,7 @@
+# 0.1.2 (2026-02-11)
+
+- **[Feature]** Add the `last` method to `XbstrRef` and `XsliceRef`.
+
 # 0.1.1 (2026-02-10)
 
 - **[Feature]** Add the following methods to `Extent`: `end`, `strip_start_checked`, `strip_end_checked`, `pop_start`, `pop_end`.

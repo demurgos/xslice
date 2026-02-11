@@ -38,6 +38,14 @@ impl<'root> XbstrRef<'root> {
     }
   }
 
+  /// If non-empty, get the last byte
+  pub const fn last(self) -> Option<u8> {
+    match self.xslice.last() {
+      None => None,
+      Some(last) => Some(*last),
+    }
+  }
+
   /// If non-empty, get the first byte and rest of the slice
   pub const fn split_first_checked(self) -> Option<(u8, Self)> {
     match self.xslice.split_first_checked() {

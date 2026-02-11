@@ -51,6 +51,11 @@ impl<'root, T> XsliceRef<'root, T> {
     self.get().first()
   }
 
+  /// If non-empty, get a reference to the last item
+  pub const fn last(self) -> Option<&'root T> {
+    self.get().last()
+  }
+
   /// Split the extent slice at `mid`
   pub const fn split_at_checked(self, mid: usize) -> Option<(Self, Self)> {
     match self.extent.split_at_checked(mid) {
